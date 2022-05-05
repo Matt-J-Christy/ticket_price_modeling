@@ -1,4 +1,4 @@
-# Ticet Price Modeling 
+# Ticket Price Modeling 
 
 Matt Christy
 
