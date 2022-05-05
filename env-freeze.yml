@@ -1,0 +1,29 @@
+name: tickets
+channels:
+  - defaults
+prefix: C:\Users\chris\anaconda3\envs\python-dev-practice\envs\tickets
+dependencies:
+  - python=3.8
+  - pip
+  - pandas
+  - numpy
+  - scipy
+  - requests
+  - pip:
+    - matplotlib
+    - plotly
+    - scikit-learn
+    - statsmodels
+    - google-api-python-client
+    - google-auth
+    - google-auth-httplib2
+    - google-auth-oauthlib
+    - gspread
+    - orca
+    - ipykernel
+    - flake8
+    - autopep8
+    - nbformat
+    - openpyxl
+    - patsy
+    - kaleido
