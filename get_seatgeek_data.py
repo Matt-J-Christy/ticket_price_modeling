@@ -9,7 +9,7 @@ base_url = 'https://api.seatgeek.com/2/events/'
 
 client_string = '?client_id=' + config.my_client_id
 
-event_id = '5461967'
+event_id = '5653471'
 
 query_url = base_url + event_id + client_string
 
@@ -18,8 +18,8 @@ json_result = requests.get(query_url).json()
 now_utc = datetime.utcnow()
 
 # keys I care about:
-# stats, datetime_local, datetime_utc, 
-# there keys are nested in 'performers': 
+# stats, datetime_local, datetime_utc,
+# there keys are nested in 'performers':
 # id, name, popularity, slug, type, location
 
 price_info = json_result['stats']
@@ -30,7 +30,7 @@ results_dict = {}
 home = json_result['performers'][0]
 away = json_result['performers'][1]
 
-for i in ['name', 'id', 'popularity', 'slug', 'type', 'location']:
+for i in ['name', 'id', 'popularity', 'slug', 'type']:
     key = 'home_' + i
     results_dict[i] = home[i]
 
@@ -51,8 +51,10 @@ db_name = 'tickets.db'
 
 conn = sqlite3.connect(db_name)
 
+
+
 results_df.to_sql(
-    file = 'ticket_price_log',
+    name='ticket_price_dump',
     con=conn,
     if_exists='append',
     index=False
