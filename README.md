@@ -3,7 +3,7 @@
 Matt Christy
 
 Goal: Use open APIs and web scraping to gather event ticket data and 
-create a recommendatino algorithm to optimize ticket purchases
+create a recommendation algorithm to optimize ticket purchases
 
 ## Data Sources
 
