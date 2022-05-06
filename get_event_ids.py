@@ -58,9 +58,9 @@ nba_event_ids = [int(el) for el in nba_event_ids]
 Get MLB Data
 """
 
-mlb_link = get_page(mlb_link)
+mlb_page = get_page(mlb_link)
 
-mlb_html = BeautifulSoup(nba_page.text, "lxml")
+mlb_html = BeautifulSoup(mlb_page.text, "lxml")
 
 links = []
 mlb_games = []
@@ -69,10 +69,10 @@ mlb_event_ids = []
 for link in mlb_html.findAll('a'):
     links.append(link.get('href'))
 
-# get nba links
+# get mlb links
 for i in range(1, len(links)):
     link = str(links[i])
-    if "/nba/" in link:
+    if "/mlb/" in link:
         mlb_games.append(link)
         mlb_event_ids.append(link[-7:])
 
@@ -83,14 +83,14 @@ mlb_event_ids = [int(el) for el in mlb_event_ids]
 
 # write event ids to DB
 
-now = datetime.utcnow()
+now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 nba = ['nba'] * len(nba_event_ids)
 mlb = ['mlb'] * len(mlb_event_ids)
 
 results_df = pd.DataFrame({
     'datetime_utc': now,
     'league': nba + mlb,
-    'event_ids': nba_event_ids + mlb_event_ids
+    'event_id': nba_event_ids + mlb_event_ids
 })
 
 results_df.to_sql(

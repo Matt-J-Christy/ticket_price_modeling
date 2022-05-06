@@ -1,57 +1,99 @@
+"""
+Querying SeatGeek API to 
+get event price data 
+"""
 
+from distutils.command.clean import clean
 import requests
 import pandas as pd
 import sqlite3
-import config
+import config  # pull api credential from file (not shared on github)
 from datetime import datetime
+
+# set up base parameters for queries
 
 base_url = 'https://api.seatgeek.com/2/events/'
 
 client_string = '?client_id=' + config.my_client_id
 
-event_id = '5653471'
+conn = sqlite3.connect('tickets.db')
 
-query_url = base_url + event_id + client_string
+event_query = f"""
+select distinct event_id, league
+from event_id_dump
+group by league, event_id
+having(datetime_utc) = datetime_utc
+"""
 
-json_result = requests.get(query_url).json()
+id_table = pd.read_sql(
+    event_query,
+    con=conn
+)
 
-now_utc = datetime.utcnow()
-
-# keys I care about:
-# stats, datetime_local, datetime_utc,
-# there keys are nested in 'performers':
-# id, name, popularity, slug, type, location
-
-price_info = json_result['stats']
-price_info.pop('dq_bucket_counts')
-
-results_dict = {}
-
-home = json_result['performers'][0]
-away = json_result['performers'][1]
-
-for i in ['name', 'id', 'popularity', 'slug', 'type']:
-    key = 'home_' + i
-    results_dict[i] = home[i]
-
-for i in ['name', 'id', 'popularity', 'slug']:
-    key = 'away_' + i
-    results_dict[key] = away[i]
-
-for key in price_info.keys():
-    results_dict[key] = price_info[key]
-
-results_dict['event_datetime_local'] = json_result['datetime_local']
-results_dict['event_datetime_utc'] = json_result['datetime_utc']
-results_dict['query_datetime_utc'] = now_utc
-
-results_df = pd.DataFrame([results_dict])
-
-db_name = 'tickets.db'
-
-conn = sqlite3.connect(db_name)
+now_utc = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
 
+def get_event_data(
+    base_url: str,
+    event_id: str,
+    client_string: str
+):
+
+    results_dict = {}
+
+    query_url = base_url + str(event_id) + client_string
+
+    json_result = requests.get(query_url).json()
+
+    # keys I care about:
+    # stats, datetime_local, datetime_utc,
+    # there keys are nested in 'performers':
+    # id, name, popularity, slug, type, location
+
+    price_info = json_result['stats']
+    price_info.pop('dq_bucket_counts')
+
+    home = json_result['performers'][0]
+    away = json_result['performers'][1]
+
+    for i in ['name', 'id', 'popularity', 'slug', 'type']:
+        key = 'home_' + i
+        results_dict[i] = home[i]
+
+    for i in ['name', 'id', 'popularity', 'slug']:
+        key = 'away_' + i
+        results_dict[key] = away[i]
+
+    for key in price_info.keys():
+        results_dict[key] = price_info[key]
+
+    results_dict['event_datetime_local'] = json_result['datetime_local']
+    results_dict['event_datetime_utc'] = json_result['datetime_utc']
+    results_dict['query_datetime_utc'] = now_utc
+    results_dict['event_id'] = str(event_id)
+
+    return results_dict
+
+
+# iterate through events list
+
+id_list = id_table['event_id']
+ticket_data = []  # create empty list to drop dictionaries
+
+for id in id_list:
+    res = get_event_data(
+        base_url=base_url,
+        event_id=id,
+        client_string=client_string
+    )
+
+    ticket_data.append(res)
+
+print(f"Events scraped: {len(ticket_data)}")
+
+# write results to db
+
+results_df = pd.DataFrame(ticket_data)
 
 results_df.to_sql(
     name='ticket_price_dump',
