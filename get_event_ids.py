@@ -10,10 +10,6 @@ from requests import get
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-
-nba_link = 'https://seatgeek.com/nba-tickets'
-mlb_link = 'https://seatgeek.com/mlb-tickets'
-
 conn = sqlite3.connect('tickets.db')
 
 
@@ -27,70 +23,68 @@ def get_page(url):
     return(fantasy_page)
 
 
-"""
-Get NBA Data
-"""
-nba_page = get_page(nba_link)
+def get_ticket_data(link, league):
 
-nba_html = BeautifulSoup(nba_page.text, "lxml")
+    page = get_page(link)
 
-links = []
-nba_games = []
-nba_event_ids = []
+    html = BeautifulSoup(page.text, "lxml")
 
-for link in nba_html.findAll('a'):
-    links.append(link.get('href'))
+    links = []
+    event_ids = []
 
-# get nba links
-for i in range(1, len(links)):
-    link = str(links[i])
-    if "/nba/" in link:
-        nba_games.append(link)
-        nba_event_ids.append(link[-7:])
+    for link in html.findAll('a'):
+        links.append(link.get('href'))
 
+    search_str = "/" + league + "/"
 
-nba_event_ids = list(set(nba_event_ids))
+    # get nba links
+    for i in range(1, len(links)):
+        link = str(links[i])
+        if search_str in link:
+            event_ids.append(link[-7:])
 
-nba_event_ids = [int(el) for el in nba_event_ids]
+    event_ids = list(set(event_ids))
 
+    event_ids = [int(el) for el in event_ids]
 
-"""
-Get MLB Data
-"""
-
-mlb_page = get_page(mlb_link)
-
-mlb_html = BeautifulSoup(mlb_page.text, "lxml")
-
-links = []
-mlb_games = []
-mlb_event_ids = []
-
-for link in mlb_html.findAll('a'):
-    links.append(link.get('href'))
-
-# get mlb links
-for i in range(1, len(links)):
-    link = str(links[i])
-    if "/mlb/" in link:
-        mlb_games.append(link)
-        mlb_event_ids.append(link[-7:])
+    return event_ids
 
 
-mlb_event_ids = list(set(mlb_event_ids))
+def flatten(list):
+    flat_list = [item for sublist in list for item in sublist]
 
-mlb_event_ids = [int(el) for el in mlb_event_ids]
+    return flat_list
+
+# iterate through active leagues
+
+leagues = ['nba', 'mlb', 'nhl']
+
+nba_link = 'https://seatgeek.com/nba-tickets'
+mlb_link = 'https://seatgeek.com/mlb-tickets'
+nhl_link = 'https://seatgeek.com/nhl-tickets'
+
+links = [nba_link, mlb_link, nhl_link]
+
+ids_list = []
+league_ids = []
+
+for i in range(0, len(links)):
+
+    ids = get_ticket_data(links[i], leagues[i])
+    ids_list.append(ids)
+    league_ids.append([leagues[i]]*len(ids))
 
 # write event ids to DB
 
 now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-nba = ['nba'] * len(nba_event_ids)
-mlb = ['mlb'] * len(mlb_event_ids)
+
+final_event_ids = flatten(ids_list)
+league_names = flatten(league_ids)
 
 results_df = pd.DataFrame({
     'datetime_utc': now,
-    'league': nba + mlb,
-    'event_id': nba_event_ids + mlb_event_ids
+    'league': league_names,
+    'event_id': final_event_ids
 })
 
 results_df.to_sql(
@@ -99,3 +93,5 @@ results_df.to_sql(
     if_exists='append',
     index=False
 )
+
+
