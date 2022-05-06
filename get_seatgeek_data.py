@@ -3,7 +3,6 @@ Querying SeatGeek API to
 get event price data 
 """
 
-from distutils.command.clean import clean
 import requests
 import pandas as pd
 import sqlite3
