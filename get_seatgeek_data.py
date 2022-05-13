@@ -44,38 +44,43 @@ def get_event_data(
 
     json_result = requests.get(query_url).json()
 
-    # keys I care about:
-    # stats, datetime_local, datetime_utc,
-    # there keys are nested in 'performers':
-    # id, name, popularity, slug, type, location
+    if 'status' in json_result.keys() and \
+            json_result['status'] == 'error':
+        print(f"[!] {json_result['code']} error: event_id {event_id}")
 
-    price_info = json_result['stats']
-    price_info.pop('dq_bucket_counts')
+    else:
 
-    home = json_result['performers'][0]
-    away = json_result['performers'][1]
+        # keys I care about:
+        # stats, datetime_local, datetime_utc,
+        # there keys are nested in 'performers':
+        # id, name, popularity, slug, type, location
 
-    for i in ['name', 'id', 'popularity', 'slug', 'type']:
-        key = 'home_' + i
-        results_dict[i] = home[i]
+        price_info = json_result['stats']
+        price_info.pop('dq_bucket_counts')
 
-    for i in ['name', 'id', 'popularity', 'slug']:
-        key = 'away_' + i
-        results_dict[key] = away[i]
+        home = json_result['performers'][0]
+        away = json_result['performers'][1]
 
-    for key in price_info.keys():
-        results_dict[key] = price_info[key]
+        for i in ['name', 'id', 'popularity', 'slug', 'type']:
+            key = 'home_' + i
+            results_dict[i] = home[i]
 
-    results_dict['event_datetime_local'] = json_result['datetime_local']
-    results_dict['event_datetime_utc'] = json_result['datetime_utc']
-    results_dict['query_datetime_utc'] = now_utc
-    results_dict['event_id'] = str(event_id)
+        for i in ['name', 'id', 'popularity', 'slug']:
+            key = 'away_' + i
+            results_dict[key] = away[i]
 
-    return results_dict
+        for key in price_info.keys():
+            results_dict[key] = price_info[key]
+
+        results_dict['event_datetime_local'] = json_result['datetime_local']
+        results_dict['event_datetime_utc'] = json_result['datetime_utc']
+        results_dict['query_datetime_utc'] = now_utc
+        results_dict['event_id'] = str(event_id)
+
+        return results_dict
 
 
 # iterate through events list
-
 id_list = id_table['event_id']
 ticket_data = []  # create empty list to drop dictionaries
 
@@ -86,7 +91,8 @@ for id in id_list:
         client_string=client_string
     )
 
-    ticket_data.append(res)
+    if res != None:
+        ticket_data.append(res)
 
 print(f"Events scraped: {len(ticket_data)}")
 
