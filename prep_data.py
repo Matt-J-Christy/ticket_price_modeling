@@ -9,4 +9,4 @@ conn = sqlite3.connect(db)
 
 cursor = conn.cursor()
 
-cursor.execute(query)
+cursor.executescript(query)

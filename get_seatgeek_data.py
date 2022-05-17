@@ -20,14 +20,15 @@ conn = sqlite3.connect('tickets.db')
 event_query = f"""
 select distinct event_id, league
 from event_id_dump
-group by league, event_id
-having(datetime_utc) = datetime_utc
+where date(datetime_utc) = date()
 """
 
 id_table = pd.read_sql(
     event_query,
     con=conn
 )
+
+print(f"Events today: {id_table.shape[0]}")
 
 now_utc = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
