@@ -1,2 +1,3 @@
 config.py
+gcp_comput_creds.json
 *__pycache__*

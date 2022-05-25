@@ -57,6 +57,7 @@ def flatten(list):
 
 # iterate through active leagues
 
+
 leagues = ['nba', 'mlb', 'nhl']
 
 nba_link = 'https://seatgeek.com/nba-tickets'
@@ -93,5 +94,3 @@ results_df.to_sql(
     if_exists='append',
     index=False
 )
-
-

@@ -27,3 +27,8 @@ dependencies:
     - openpyxl
     - patsy
     - kaleido
+    - bs4
+    - lxml
+    - google-cloud-storage
+    - google-cloud
+    - oauth2client
