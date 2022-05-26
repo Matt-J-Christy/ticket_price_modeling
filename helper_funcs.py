@@ -2,9 +2,6 @@
 Helper functions
 """
 
-from google.cloud import storage
-from google.oauth2 import service_account
-import json
 from requests import get
 from bs4 import BeautifulSoup
 import requests
@@ -15,15 +12,8 @@ reading and writing to GCP
 storage bucket location
 """
 
-with open('gcp_compute_creds.json') as file:
-    creds_dict = json.load(file)
 
-creds = service_account.Credentials.from_service_account_info(creds_dict)
-
-storage_client = storage.Client('ticket-model-app', credentials=creds)
-
-
-def upload_blob_from_memory(bucket_name, df, destination_blob_name):
+def upload_blob_from_memory(storage_client, bucket_name, df, destination_blob_name):
     """Uploads a file to the bucket."""
 
     # The ID of your GCS bucket
@@ -58,7 +48,7 @@ def get_page(url):
     return(fantasy_page)
 
 
-def get_ticket_data(link, league):
+def get_event_ids(link, league):
 
     page = get_page(link)
 

@@ -14,10 +14,10 @@ LABEL Maintainer="matt_christy"
 WORKDIR /c/Users/chris/Documents/Analytical_Projects/ticket_price_modeling
 
 #to COPY the remote file at working directory in container
-COPY get_event_ids.py get_seatgeek_data.py ./
+COPY gcp_get_event_ids.py gcp_get_seatgeek_data.py ./
 # Now the structure looks like this '/c/Users/chris/Documents/Analytical_Projects/ticket_price_modeling/'
 
 
 #CMD instruction should be used to run the software
 #contained by your image, along with any arguments.
-CMD [ "python", "./get_event_ids.py", "./get_seatgeek_data.py"]
+CMD [ "python", "./gcp_get_event_ids.py", "./gcp_get_seatgeek_data.py"]

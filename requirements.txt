@@ -21,5 +21,3 @@ google-cloud
 google-cloud-storage
 google-cloud-bigquery
 oauth2client
-fsspec
-gcsfs

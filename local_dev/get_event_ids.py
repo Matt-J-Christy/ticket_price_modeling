@@ -10,7 +10,7 @@ from requests import get
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-conn = sqlite3.connect('tickets.db')
+conn = sqlite3.connect('../tickets.db')
 
 
 def get_page(url):

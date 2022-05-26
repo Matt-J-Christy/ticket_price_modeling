@@ -3,7 +3,6 @@ Querying SeatGeek API to
 get event price data 
 """
 
-from unittest import result
 from google.cloud import bigquery
 import pandas as pd
 import config  # pull api credential from file (not shared on github)
@@ -13,7 +12,7 @@ import json
 from helper_funcs import get_event_data
 
 
-with open('gcp_compute_creds.json') as file:
+with open('gcp_creds.json') as file:
     creds_dict = json.load(file)
 
 creds = service_account.Credentials.from_service_account_info(creds_dict)
@@ -68,36 +67,39 @@ results_df[floats] = results_df[floats].astype(float)
 
 bq = bigquery.Client(credentials=creds)
 
-table_id = 'ticket-model-app.ticket_data_dump'
+table_id = 'ticket-model-app.ticket_data.ticket_data_dump'
+
+schema = [
+    bigquery.SchemaField("name", "STRING"),
+    bigquery.SchemaField("id", "STRING"),
+    bigquery.SchemaField("popularity", "FLOAT64"),
+    bigquery.SchemaField("slug", "STRING"),
+    bigquery.SchemaField("type", "STRING"),
+    bigquery.SchemaField("away_name", "STRING"),
+    bigquery.SchemaField("away_id", "STRING"),
+    bigquery.SchemaField("away_popularity", "FLOAT64"),
+    bigquery.SchemaField("away_slug", "STRING"),
+    bigquery.SchemaField("listing_count", "FLOAT64"),
+    bigquery.SchemaField("average_price", "FLOAT64"),
+    bigquery.SchemaField("lowest_price_good_deals", "FLOAT64"),
+    bigquery.SchemaField("lowest_price", "FLOAT64"),
+    bigquery.SchemaField("highest_price", "FLOAT64"),
+    bigquery.SchemaField("visible_listing_count", "FLOAT64"),
+    bigquery.SchemaField("median_price", "FLOAT64"),
+    bigquery.SchemaField("lowest_sg_base_price", "FLOAT64"),
+    bigquery.SchemaField("lowest_sg_base_price_good_deals", "FLOAT64"),
+    bigquery.SchemaField("event_datetime_local", "STRING"),
+    bigquery.SchemaField("event_datetime_utc", "STRING"),
+    bigquery.SchemaField("query_datetime_utc", "STRING"),
+    bigquery.SchemaField("event_id", "STRING")
+]
 
 job_config = bigquery.LoadJobConfig(
-    schema=[
-        bigquery.SchemaField("name", "STRING"),
-        bigquery.SchemaField("id", "STRING"),
-        bigquery.SchemaField("popularity", "FLOAT64"),
-        bigquery.SchemaField("slug", "STRING"),
-        bigquery.SchemaField("type", "STRING"),
-        bigquery.SchemaField("away_name", "STRING"),
-        bigquery.SchemaField("away_id", "STRING"),
-        bigquery.SchemaField("away_popularity", "FLOAT64"),
-        bigquery.SchemaField("away_slug", "STRING"),
-        bigquery.SchemaField("listing_count", "FLOAT64"),
-        bigquery.SchemaField("average_price", "FLOAT64"),
-        bigquery.SchemaField("lowest_price_good_deals", "FLOAT64"),
-        bigquery.SchemaField("lowest_price", "FLOAT64"),
-        bigquery.SchemaField("highest_price", "FLOAT64"),
-        bigquery.SchemaField("visible_listing_count", "FLOAT64"),
-        bigquery.SchemaField("median_price", "FLOAT64"),
-        bigquery.SchemaField("lowest_sg_base_price", "FLOAT64"),
-        bigquery.SchemaField("lowest_sg_base_price_good_deals", "FLOAT64"),
-        bigquery.SchemaField("event_datetime_local", "STRING"),
-        bigquery.SchemaField("event_datetime_utc", "STRING"),
-        bigquery.SchemaField("query_datetime_utc", "STRING"),
-        bigquery.SchemaField("event_id", "STRING")
-    ]
+    schema=schema
 )
-
 
 job = bq.load_table_from_dataframe(
     results_df, table_id, job_config=job_config
 )
+
+print(job.result())

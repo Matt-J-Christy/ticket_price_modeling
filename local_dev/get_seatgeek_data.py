@@ -15,7 +15,7 @@ base_url = 'https://api.seatgeek.com/2/events/'
 
 client_string = '?client_id=' + config.my_client_id
 
-conn = sqlite3.connect('tickets.db')
+conn = sqlite3.connect('../tickets.db')
 
 event_query = f"""
 select distinct event_id, league

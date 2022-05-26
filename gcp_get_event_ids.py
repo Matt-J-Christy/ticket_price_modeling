@@ -11,9 +11,9 @@ from google.oauth2 import service_account
 import json
 from helper_funcs import upload_blob_from_memory,\
     flatten,\
-    get_ticket_data
+    get_event_ids
 
-with open('gcp_compute_creds.json') as file:
+with open('gcp_creds.json') as file:
     creds_dict = json.load(file)
 
 creds = service_account.Credentials.from_service_account_info(creds_dict)
@@ -37,7 +37,7 @@ league_ids = []
 
 for i in range(len(links)):
 
-    ids = get_ticket_data(links[i], leagues[i])
+    ids = get_event_ids(links[i], leagues[i])
     ids_list.append(ids)
     league_ids.append([leagues[i]]*len(ids))
 
@@ -61,6 +61,7 @@ now_date = now[:10]
 table_name = f"event_ids_{now_date}.csv"
 
 upload_blob_from_memory(
+    storage_client,
     'ticket-data-dump',
     results_df,
     table_name
