@@ -46,7 +46,6 @@ for id in id_list:
 
 print(f"Events scraped: {len(ticket_data)}")
 
-
 # write to google cloud bucket
 
 results_df = pd.DataFrame(ticket_data)

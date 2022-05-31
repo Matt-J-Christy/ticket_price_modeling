@@ -102,6 +102,9 @@ def get_event_data(
             json_result['status'] == 'error':
         print(f"[!] {json_result['code']} error: event_id {event_id}")
 
+    elif len(json_result['performers']) < 2:
+        print(f"[!] Error: Two teams not at event, event_id {event_id}")
+
     else:
 
         # keys I care about:
