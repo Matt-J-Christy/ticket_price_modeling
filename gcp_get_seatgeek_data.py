@@ -3,13 +3,14 @@ Querying SeatGeek API to
 get event price data 
 """
 
-from google.cloud import bigquery
+import json
+from io import StringIO
 import pandas as pd
-import config  # pull api credential from file (not shared on github)
 from datetime import datetime
 from google.oauth2 import service_account
-import json
+from google.cloud import storage, bigquery
 from helper_funcs import get_event_data
+import config  # pull api credential from file (not shared on github)
 
 
 with open('gcp_creds.json') as file:
@@ -17,10 +18,15 @@ with open('gcp_creds.json') as file:
 
 creds = service_account.Credentials.from_service_account_info(creds_dict)
 
+storage_client = storage.Client(credentials=creds)
+bucket = storage_client.bucket('ticket-data-dump')
+
 today = datetime.utcnow().strftime("%Y-%m-%d")
 event_id_table = f"event_ids_{today}.csv"
 
-id_table = pd.read_csv(f"gs://ticket-data-dump/{event_id_table}")
+blob = bucket.blob(event_id_table)
+
+id_table = pd.read_csv(StringIO(blob.open('r').read()), sep=',')
 
 print(f"Events today: {id_table.shape[0]}")
 

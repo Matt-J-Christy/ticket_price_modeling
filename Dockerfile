@@ -14,10 +14,14 @@ LABEL Maintainer="matt_christy"
 WORKDIR /c/Users/chris/Documents/Analytical_Projects/ticket_price_modeling
 
 #to COPY the remote file at working directory in container
-COPY gcp_get_event_ids.py gcp_get_seatgeek_data.py ./
+COPY gcp_get_event_ids.py gcp_get_seatgeek_data.py helper_funcs.py config.py gcp_creds.json ./
 # Now the structure looks like this '/c/Users/chris/Documents/Analytical_Projects/ticket_price_modeling/'
 
+# grab event ids for the scraping script
+RUN python ./gcp_get_event_ids.py
 
 #CMD instruction should be used to run the software
 #contained by your image, along with any arguments.
-CMD [ "python", "./gcp_get_event_ids.py", "./gcp_get_seatgeek_data.py"]
+
+# run the scraper
+CMD [ "python", "./gcp_get_seatgeek_data.py"]
