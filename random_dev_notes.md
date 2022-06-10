@@ -71,13 +71,24 @@ with open('gcp_creds.json') as file:
 creds = service_account.Credentials.from_service_account_info(creds_dict)
 
 storage_client = storage.Client(credentials=creds)
-bucket = storage_client.bucket('ticket-data-dump')
 
-today = datetime.utcnow().strftime("%Y-%m-%d")
 event_id_table = f"event_ids_{today}.csv"
 
-blob = bucket.blob(event_id_table)
+def read_from_gcs(storage_client, bucket_name, blob_name):
 
-id_table = pd.read_csv(StringIO(blob.open('r').read()), sep=',')
+    bucket = storage_client.bucket(bucket_name)
+
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    blob = bucket.blob(blob_name)
+
+    output_table = pd.read_csv(StringIO(blob.open('r').read()), sep=',')
+
+    return output_table
+
+id_table = read_from_gcs(
+    storage_client,
+    'ticket-data-dump',
+    event_id_table
+)
 
 ```

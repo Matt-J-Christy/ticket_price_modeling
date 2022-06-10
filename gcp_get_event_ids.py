@@ -13,56 +13,60 @@ from helper_funcs import upload_blob_from_memory,\
     flatten,\
     get_event_ids
 
-with open('gcp_creds.json') as file:
-    creds_dict = json.load(file)
-
-creds = service_account.Credentials.from_service_account_info(creds_dict)
-
-storage_client = storage.Client('ticket-model-app', credentials=creds)
-
 
 # iterate through active leagues
 
+def GetEventIds():
 
-leagues = ['nba', 'mlb', 'nhl']
+    with open('gcp_creds.json') as file:
+        creds_dict = json.load(file)
 
-nba_link = 'https://seatgeek.com/nba-tickets'
-mlb_link = 'https://seatgeek.com/mlb-tickets'
-nhl_link = 'https://seatgeek.com/nhl-tickets'
+    creds = service_account.Credentials.from_service_account_info(creds_dict)
 
-links = [nba_link, mlb_link, nhl_link]
+    storage_client = storage.Client('ticket-model-app', credentials=creds)
 
-ids_list = []
-league_ids = []
+    leagues = ['nba', 'mlb', 'nhl']
 
-for i in range(len(links)):
+    nba_link = 'https://seatgeek.com/nba-tickets'
+    mlb_link = 'https://seatgeek.com/mlb-tickets'
+    nhl_link = 'https://seatgeek.com/nhl-tickets'
 
-    ids = get_event_ids(links[i], leagues[i])
-    ids_list.append(ids)
-    league_ids.append([leagues[i]]*len(ids))
+    links = [nba_link, mlb_link, nhl_link]
 
-# put data into dataframe
+    ids_list = []
+    league_ids = []
 
-now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    for i in range(len(links)):
 
-final_event_ids = flatten(ids_list)
-league_names = flatten(league_ids)
+        ids = get_event_ids(links[i], leagues[i])
+        ids_list.append(ids)
+        league_ids.append([leagues[i]]*len(ids))
 
-results_df = pd.DataFrame({
-    'datetime_utc': now,
-    'league': league_names,
-    'event_id': final_event_ids
-})
+    # put data into dataframe
 
-# write to google cloud bucket
+    now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
-now_date = now[:10]
+    final_event_ids = flatten(ids_list)
+    league_names = flatten(league_ids)
 
-table_name = f"event_ids_{now_date}.csv"
+    results_df = pd.DataFrame({
+        'datetime_utc': now,
+        'league': league_names,
+        'event_id': final_event_ids
+    })
 
-upload_blob_from_memory(
-    storage_client,
-    'ticket-data-dump',
-    results_df,
-    table_name
-)
+    # write to google cloud bucket
+
+    now_date = now[:10]
+
+    table_name = f"event_ids_{now_date}.csv"
+
+    upload_blob_from_memory(
+        storage_client,
+        'ticket-data-dump',
+        results_df,
+        table_name
+    )
+
+if __name__ == '__main__':
+    GetEventIds()
