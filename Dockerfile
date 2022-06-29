@@ -1,5 +1,5 @@
 #Deriving the latest base image
-FROM python:3.8
+FROM python:3.8-slim
 COPY requirements.txt ./
 
 # install dependencies
@@ -14,11 +14,13 @@ LABEL Maintainer="matt_christy"
 WORKDIR /c/Users/chris/Documents/Analytical_Projects/ticket_price_modeling
 
 #to COPY the remote file at working directory in container
-COPY gcp_get_event_ids.py gcp_get_seatgeek_data.py helper_funcs.py config.py gcp_creds.json ./
+COPY scheduler.py gcp_get_event_ids.py gcp_get_seatgeek_data.py \
+    helper_funcs.py config.py gcp_creds.json ./
+
 # Now the structure looks like this '/c/Users/chris/Documents/Analytical_Projects/ticket_price_modeling/'
 
 #CMD instruction should be used to run the software
 #contained by your image, along with any arguments.
 # run the scraper
 
-CMD [ "python", "./gcp_get_seatgeek_data.py"]
+CMD [ "python", "./scheduler.py"]

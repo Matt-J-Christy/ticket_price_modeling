@@ -67,6 +67,3 @@ def GetEventIds():
         results_df,
         table_name
     )
-
-if __name__ == '__main__':
-    GetEventIds()

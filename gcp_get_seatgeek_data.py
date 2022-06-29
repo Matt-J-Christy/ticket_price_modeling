@@ -11,7 +11,7 @@ from google.oauth2 import service_account
 from google.cloud import storage, bigquery
 from helper_funcs import get_event_data
 import config  # pull api credential from file (not shared on github)
-import gcp_get_event_ids
+
 
 def GetTicketData():
 
@@ -61,16 +61,15 @@ def GetTicketData():
     # fix data types
 
     strings = ['name', 'id', 'slug', 'type', 'away_id', 'away_name', 'away_slug', 'event_id',
-            'event_datetime_utc', 'event_datetime_local', 'query_datetime_utc']
+               'event_datetime_utc', 'event_datetime_local', 'query_datetime_utc']
 
     floats = ['average_price', 'lowest_price_good_deals', 'lowest_price',
-            'highest_price', 'listing_count', 'visible_listing_count', 'median_price',
-            'lowest_sg_base_price', 'lowest_sg_base_price_good_deals',
-            'popularity', 'away_popularity']
+              'highest_price', 'listing_count', 'visible_listing_count', 'median_price',
+              'lowest_sg_base_price', 'lowest_sg_base_price_good_deals',
+              'popularity', 'away_popularity']
 
     results_df[strings] = results_df[strings].astype(str)
     results_df[floats] = results_df[floats].astype(float)
-
 
     bq = bigquery.Client(credentials=creds)
 
@@ -110,8 +109,3 @@ def GetTicketData():
     )
 
     print(job.result())
-
-
-if __name__ == '__main__':
-    gcp_get_event_ids.GetEventIds()
-    GetTicketData()

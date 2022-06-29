@@ -22,6 +22,12 @@ docker build -t us-central1-docker.pkg.dev/ticket-model-app/ticket-models/ticket
 docker push us-central1-docker.pkg.dev/ticket-model-app/ticket-models/ticket-app
 ```
 
+If you want to test different versions of a Dockerfile: 
+
+```{shell}
+docker build -f Dockerfile-test -t us-central1-docker.pkg.dev/ticket-model-app/ticket-models/ticket-app .
+```
+
 configure docker permissions:
 `gcloud auth configure-docker `
 
@@ -92,3 +98,7 @@ id_table = read_from_gcs(
 )
 
 ```
+
+### Setting up a job 
+
+https://schedule.readthedocs.io/en/stable/examples.html#run-all-jobs-now-regardless-of-their-scheduling
